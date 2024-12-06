@@ -1,3 +1,5 @@
+
+/*
 #include <stdio.h>
 #include "heap.c"
 
@@ -29,3 +31,4 @@ int main(int argc, char* argv[]) {
 
     return 8;
 }
+*/
