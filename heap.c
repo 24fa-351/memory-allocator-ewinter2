@@ -7,15 +7,15 @@
 
 #include "heap.h"
 
-#define MEMORY_SIZE (1024 * 2024)
-static uint8_t memory[MEMORY_SIZE];
+#define MY_HEAP_MAX_SIZE (1024 * 2024)
+static uint8_t memory[MY_HEAP_MAX_SIZE];
 
 //Block structure 
-typedef struct Block {
+/*typedef struct Block {
     size_t size;
     int free;  //equals 1 if block is free, 0 if block is not free
     struct Block* next; // pointer to next block
-} Block;
+} Block;*/
 
 static Block* free_list = NULL;
 
@@ -24,7 +24,7 @@ static Block* free_list = NULL;
 
 void init_memory() {
     free_list = (Block*)memory;
-    free_list->size = MEMORY_SIZE - sizeof(Block);
+    free_list->size = MY_HEAP_MAX_SIZE - sizeof(Block);
     free_list->free = 1;
     free_list->next = NULL;
 }
@@ -38,6 +38,10 @@ Block *find_free_block(size_t size) {
         current = current->next;
     }
     return NULL;
+}
+
+void* block_to_ptr(Block* block) {
+    return (void*)((char*)block + sizeof(Block));
 }
 
 // my malloc implementation 
@@ -55,7 +59,7 @@ void* xmalloc(size_t size) {
     }
 
     block->free = 0;
-    void *ptr = (void*)((uint8_t *)block + sizeof(Block));
+    void *ptr = block_to_ptr(block);
     memset(ptr, 0, size);
 
     return ptr;
@@ -80,7 +84,7 @@ void xfree(void* ptr) {
         return; // Null pointer, nothing to free
     }
 
-    if ((uint8_t *)ptr < memory || (uint8_t *)ptr >= memory + MEMORY_SIZE) {
+    if ((uint8_t *)ptr < memory || (uint8_t *)ptr >= memory + MY_HEAP_MAX_SIZE) {
         fprintf(stderr, "xfree: Ivalid pointer\n");
         return;
     }
